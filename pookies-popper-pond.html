@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#A6DAD2">
+<title>Pookie's Popper Pond</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-top:#DFF1E0; --bg-bot:#A6DAD2;
+  --ink:#34514C; --ink-soft:#6E8F88;
+  --water:#CDEBE7; --water-edge:#9FD3CC;
+  --accent:#E86A92; --accent-deep:#cf5680;
+  --card:rgba(255,255,255,.62);
+  --weed1:rgba(96,170,110,.62); --weed2:rgba(54,120,70,.8);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;height:100%;}
+body{font-family:'Nunito',system-ui,sans-serif;color:var(--ink);
+  background:linear-gradient(170deg,var(--bg-top),var(--bg-bot));background-attachment:fixed;min-height:100dvh;
+  display:flex;flex-direction:column;align-items:center;overflow-x:hidden;user-select:none;-webkit-user-select:none;}
+header{width:100%;max-width:520px;padding:16px 20px 4px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.title{font-family:'Fredoka',sans-serif;font-weight:600;font-size:1.3rem;line-height:1;}
+.title b{color:var(--accent);font-weight:600;}
+.level-pill{font-family:'Fredoka',sans-serif;font-weight:500;background:var(--card);padding:6px 13px;border-radius:999px;font-size:.82rem;box-shadow:0 2px 8px rgba(80,120,110,.18);white-space:nowrap;}
+.statusbar{width:100%;max-width:520px;padding:2px 22px 0;display:flex;justify-content:space-between;align-items:center;color:var(--ink-soft);font-weight:700;font-size:.9rem;min-height:24px;}
+.goal{display:flex;align-items:center;gap:6px;}
+.goal .dot{width:13px;height:13px;border-radius:4px;background:var(--weed2);display:inline-block;}
+main{flex:1;width:100%;display:flex;align-items:center;justify-content:center;padding:10px;}
+#boardWrap{background:linear-gradient(160deg,var(--water),#bfe6e0);border:3px solid var(--water-edge);border-radius:24px;
+  padding:8px;box-shadow:inset 0 2px 10px rgba(255,255,255,.5),0 10px 24px rgba(70,110,100,.22);position:relative;}
+#board{display:grid;gap:4px;}
+.tile{position:relative;border:none;padding:0;border-radius:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  background:#dff3ef;transition:transform .12s ease, box-shadow .15s ease;font-size:1px;line-height:1;}
+.tile.void{background:transparent;box-shadow:none;cursor:default;pointer-events:none;}
+.crit{width:84%;height:84%;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  box-shadow:inset -2px -3px 5px rgba(0,0,0,.14),inset 2px 3px 6px rgba(255,255,255,.5);}
+.tile.sel{transform:scale(1.12);box-shadow:0 0 0 3px var(--accent),0 4px 10px rgba(80,120,110,.3);z-index:3;}
+.tile.pop .crit{animation:pop .26s cubic-bezier(.34,1.6,.6,1);}
+@keyframes pop{0%{transform:scale(.4);opacity:0;}60%{transform:scale(1.12);}100%{transform:scale(1);opacity:1;}}
+.tile.shake{animation:shake .3s ease;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-4px);}75%{transform:translateX(4px);}}
+.weed{position:absolute;inset:0;border-radius:14px;pointer-events:none;display:flex;align-items:center;justify-content:center;font-size:.9em;}
+.weed.m1{background:var(--weed1);box-shadow:inset 0 0 0 2px rgba(60,130,75,.35);}
+.weed.m2{background:var(--weed2);box-shadow:inset 0 0 0 3px rgba(40,100,55,.5);}
+.weed.m3{background:var(--weed2);box-shadow:inset 0 0 0 3px rgba(30,90,45,.65), inset 0 0 0 9px rgba(40,100,55,.45);}
+.crit.ripple{background:radial-gradient(circle at 40% 35%,#fff,#bfe9ff);box-shadow:0 0 10px rgba(120,200,255,.8),inset 0 0 6px #9fd8ff;}
+.crit.bubble{background:radial-gradient(circle at 38% 32%,#fff,#dff6ff);box-shadow:0 0 12px rgba(180,240,255,.9);}
+.crit.rainbow{background:conic-gradient(#ff9aa2,#ffd59e,#fff4a3,#aef0c4,#9fd8ff,#d9b8ff,#ff9aa2);box-shadow:0 0 14px rgba(255,200,230,.9);animation:spin 4s linear infinite;}
+.crit.joker{background:radial-gradient(circle at 38% 32%,#ffe6bd,#f7b35e);box-shadow:0 0 12px rgba(247,160,80,.85);animation:wob 2.2s ease-in-out infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+@keyframes wob{0%,100%{transform:rotate(-4deg);}50%{transform:rotate(4deg);}}
+.controls{width:100%;max-width:520px;padding:8px 20px calc(16px + env(safe-area-inset-bottom));display:flex;gap:9px;justify-content:center;flex-wrap:wrap;}
+.btn{font-family:'Fredoka',sans-serif;font-weight:500;font-size:.95rem;border:none;border-radius:15px;padding:11px 16px;cursor:pointer;background:var(--card);color:var(--ink);box-shadow:0 3px 10px rgba(80,120,110,.2);transition:transform .12s;display:flex;align-items:center;gap:6px;}
+.btn:active{transform:scale(.95);}
+.btn.primary{background:var(--accent);color:#fff;}
+.btn:disabled{opacity:.45;}
+.overlay{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;padding:26px;background:rgba(40,70,64,.3);backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .35s;}
+.overlay.show{opacity:1;pointer-events:auto;}
+.sheet{background:linear-gradient(160deg,#fff,#FBE3EC);border-radius:28px;padding:30px 26px;max-width:380px;width:100%;text-align:center;box-shadow:0 18px 50px rgba(80,50,70,.3);transform:translateY(14px) scale(.97);transition:transform .35s cubic-bezier(.34,1.56,.64,1);}
+.overlay.show .sheet{transform:none;}
+.sheet h1{font-family:'Fredoka',sans-serif;font-weight:600;font-size:1.8rem;margin:0 0 6px;}
+.sheet h2{font-family:'Fredoka',sans-serif;font-weight:600;font-size:1.5rem;margin:0 0 8px;color:var(--accent);}
+.sheet p{font-size:1.04rem;line-height:1.5;margin:0 0 18px;}
+.turtles{font-size:2.2rem;margin:0 0 6px;letter-spacing:6px;}
+.turtles .t{filter:grayscale(1);opacity:.28;}
+.turtles .t.on{filter:none;opacity:1;animation:pop .3s ease;}
+.movecount{font-size:.9rem;color:var(--ink-soft);font-weight:700;margin:0 0 18px;}
+.bigmoji{font-size:2.4rem;display:block;margin-bottom:6px;}
+.howto{font-size:.9rem;color:var(--ink-soft);background:rgba(255,255,255,.6);border-radius:14px;padding:12px 14px;margin:0 0 18px;text-align:left;line-height:1.45;}
+.howto b{color:var(--ink);}
+.picker-sheet{max-width:420px;}
+.picker-sheet h2{margin-bottom:2px;}
+.picker-stats{font-size:.85rem;color:var(--ink-soft);font-weight:700;margin-bottom:8px;}
+.picker-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-height:54vh;overflow-y:auto;padding:4px 2px;-webkit-overflow-scrolling:touch;}
+.pcell{position:relative;aspect-ratio:1;border:none;border-radius:14px;background:#EAF6F0;color:var(--ink);font-family:'Fredoka',sans-serif;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;box-shadow:0 2px 6px rgba(80,120,110,.15);transition:transform .1s;}
+.pcell:active{transform:scale(.92);}
+.pcell.done{background:#D7F0DD;}
+.pcell.current{box-shadow:0 0 0 3px var(--accent);}
+.pcell.locked{background:#E9EDEE;color:#b6c2c0;cursor:default;box-shadow:none;}
+.pcell .pn{font-size:1rem;font-weight:600;line-height:1;}
+.pcell .pt{display:flex;gap:1px;font-size:.6rem;line-height:1;height:.7rem;}
+.pcell .pt i{filter:grayscale(1);opacity:.28;font-style:normal;}
+.pcell .pt i.on{filter:none;opacity:1;}
+.pcell .lock{font-size:1rem;opacity:.55;}
+.float{position:fixed;bottom:-40px;z-index:25;pointer-events:none;animation:rise 2.6s ease-in forwards;}
+@keyframes rise{0%{transform:translateY(0) rotate(0);opacity:0;}15%{opacity:.95;}100%{transform:translateY(-112vh) rotate(35deg);opacity:0;}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important;}.crit.rainbow,.crit.joker{animation:none;}.float{display:none;}}
+</style>
+</head>
+<body>
+<header>
+  <div class="title">Pookie's <b>Popper Pond</b></div>
+  <div class="level-pill" id="levelPill">Pond 1</div>
+</header>
+<div class="statusbar">
+  <span class="goal"><span class="dot"></span> Duckweed left: <span id="weedLeft">0</span></span>
+  <span id="moves">0 moves</span>
+</div>
+<main><div id="boardWrap"><div id="board"></div></div></main>
+<div class="controls">
+  <button class="btn" id="pondsBtn">🗺️ Ponds</button>
+  <button class="btn" id="hintBtn">💡 Hint</button>
+  <button class="btn" id="soundBtn">🔊 Sound</button>
+  <button class="btn" id="restartBtn">⟳ Restart</button>
+  <button class="btn primary" id="nextBtn" style="display:none">Next pond →</button>
+</div>
+
+<div class="overlay show" id="welcome">
+  <div class="sheet">
+    <span class="bigmoji">🐸</span>
+    <h1 id="wTitle"></h1>
+    <p id="wMsg"></p>
+    <div class="howto">
+      <b>Tap</b> a critter, then a neighbor to swap. Match <b>3+</b> to pop them and clear the duckweed.<br><br>
+      Pop <b>4</b> → 💦 Ripple (clears a row + column), an <b>L/T</b> → 🫧 Bubble (3×3), and <b>5</b> → 🌈 Rainbow Lotus (swap onto a critter to pop them all).<br><br>
+      Keep an eye out for <b>Obi</b> 🐱 — the cat is a wildcard that matches any critter. Clear each pond in few moves to earn 🐢🐢🐢!
+    </div>
+    <button class="btn primary" id="startBtn" style="margin:0 auto">Dip in 🌿</button>
+  </div>
+</div>
+<div class="overlay" id="win">
+  <div class="sheet">
+    <span class="bigmoji">💗</span>
+    <h2 id="winTitle">Pond cleared!</h2>
+    <div class="turtles" id="turtleRow"></div>
+    <div class="movecount" id="moveCount"></div>
+    <p id="winMsg"></p>
+    <button class="btn primary" id="winBtn" style="margin:0 auto">Next pond →</button>
+  </div>
+</div>
+<div class="overlay" id="picker">
+  <div class="sheet picker-sheet">
+    <h2>Pond map 🗺️</h2>
+    <div class="picker-stats" id="pickerStats"></div>
+    <div class="picker-grid" id="pickerGrid"></div>
+    <button class="btn" id="pickerClose" style="margin:14px auto 0">Close</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   EDIT THIS BLOCK to personalize. Everything else is the game.
+   ============================================================ */
+const CONFIG = {
+  name: "Pookie",
+  welcome: "I made you a pond to play in. 🐸 Pop the critters, clear the duckweed, no rush and no way to lose. Watch for Obi! 💗",
+  winMessages: [
+    "Pond's all clear — nice work, Pookie. 🌿",
+    "Every frog says thank you. 🐸💗",
+    "You make a splash. 💦",
+    "Even Obi's impressed. 🐱",
+    "So calm, so clever. That's my Pookie.",
+    "Lily pads sparkling, thanks to you. 🪷",
+    "The swans are gliding happy. 🦢"
+  ],
+  finale: "You cleared every pond, Pookie. 💗 The frogs, the ducks, the swans, Obi and I all love you. 🐸🌿"
+};
+
+/* ===== Critters (index = type). Swap emoji freely. ===== */
+const PIECES = [
+  {e:'🐸', bg:'#BFE6B6'}, // frog
+  {e:'🐟', bg:'#B6D7F0'}, // fish
+  {e:'🪷', bg:'#F4C4D6'}, // lotus
+  {e:'🦆', bg:'#F6E3A6'}, // duck
+  {e:'🐌', bg:'#D9C6EE'}, // snail
+  {e:'🐢', bg:'#AEE6DE'}, // turtle
+  {e:'🦢', bg:'#E3E7F2'}  // swan (waterbird)
+];
+const SPECIAL_EMOJI = {ripple:'💦', bubble:'🫧', rainbow:'🌈'};
+const OBI_EMOJI = '🐱';
+
+/* ===== 120 ponds: difficulty curve + shapes ===== */
+const SHAPES_UNLOCK=[[0,'rect'],[8,'diamond'],[16,'circle'],[28,'triangle'],[44,'plus'],[64,'hexagon'],[88,'heart']];
+function levelConfig(i){
+  const R = i<24?6 : i<60?7 : 8; const C=R;
+  const types = i<10?5 : i<40?6 : 7;
+  const murk = i<20?1 : i<70?2 : (i%4===0?3:2);
+  const pool=SHAPES_UNLOCK.filter(s=>i>=s[0]).map(s=>s[1]);
+  const shape=pool[i%pool.length];
+  return {R,C,types,murk,shape};
+}
+const TOTAL_LEVELS=120;
+
+/* ============================================================
+   ENGINE (fuzz-tested) — do not edit lightly.
+   ============================================================ */
+/* Pookie's Popper Pond v2 — shapes (void cells) + Obi wildcard */
+function makeEngine(rand){
+  rand=rand||Math.random;
+  const RIPPLE='ripple',BUBBLE='bubble',RAINBOW='rainbow';
+  const P_OBI=0.04;
+  const key=(r,c)=>r+','+c;
+  const inb=(g,r,c)=>r>=0&&c>=0&&r<g.R&&c<g.C;
+  const cl=(g,r,c)=>g.cells[r][c];
+  const hasPiece=x=>!x.void&&(x.t!=null||x.sp||x.j);
+  const isMatchable=x=>!x.void&&!(x.sp===RAINBOW)&&(x.t!=null||x.j);
+  const newCell=(t,murk)=>({t,sp:null,murk,j:false,void:false,_new:false});
+  const voidCell=()=>({t:null,sp:null,murk:0,j:false,void:true,_new:false});
+  const jokerCell=()=>({t:null,sp:null,murk:0,j:true,void:false,_new:false});
+  const randType=T=>Math.floor(rand()*T);
+  function spawnRandom(T){ return rand()<P_OBI ? jokerCell() : (()=>{const x=newCell(randType(T),0);x._new=true;return x;})(); }
+
+  // ---- shape masks (normalized to column-contiguous) ----
+  function shapeMask(R,C,shape){
+    const m=[];for(let r=0;r<R;r++){m.push(new Array(C).fill(true));}
+    const cr=(R-1)/2, cc=(C-1)/2;
+    function set(fn){for(let r=0;r<R;r++)for(let c=0;c<C;c++)m[r][c]=fn(r,c);}
+    if(shape==='rect'){}
+    else if(shape==='diamond'){ set((r,c)=>Math.abs(r-cr)/(R/2)+Math.abs(c-cc)/(C/2) <= 1.02); }
+    else if(shape==='circle'){ set((r,c)=>Math.pow((r-cr)/(R/2),2)+Math.pow((c-cc)/(C/2),2) <= 1.05); }
+    else if(shape==='triangle'){ set((r,c)=>{const span=(r+1)/R; const half=span*(C/2); return Math.abs(c-cc)<=half+0.001;}); }
+    else if(shape==='plus'){ const b=Math.max(1,Math.floor(Math.min(R,C)/3)-1); set((r,c)=>Math.abs(r-cr)<= (R/2 - b) ? true : false); /*placeholder*/
+      set((r,c)=> (Math.abs(c-cc)<=b) || (Math.abs(r-cr)<=b)); }
+    else if(shape==='hexagon'){ set((r,c)=>{const dr=Math.abs(r-cr)/(R/2); const dc=Math.abs(c-cc)/(C/2); return dc<=1 && dr<=1 && (dr+Math.max(0,dc-0.35))<=1.02;}); }
+    else if(shape==='heart'){ set((r,c)=>{const x=(c-cc)/(C*0.46); const y=-(r-cr-R*0.07)/(R*0.46); const v=Math.pow(x*x+y*y-1,3)-x*x*Math.pow(y,3); return v<=0.0;}); }
+    // normalize: fill internal vertical gaps so each column's playable cells are contiguous
+    for(let c=0;c<C;c++){let top=-1,bot=-1;for(let r=0;r<R;r++)if(m[r][c]){if(top<0)top=r;bot=r;}
+      if(top>=0)for(let r=top;r<=bot;r++)m[r][c]=true;}
+    // ensure not too small: if fewer than ~8 playable, fallback rect
+    let cnt=0;for(let r=0;r<R;r++)for(let c=0;c<C;c++)if(m[r][c])cnt++;
+    if(cnt<8){for(let r=0;r<R;r++)for(let c=0;c<C;c++)m[r][c]=true;}
+    return m;
+  }
+
+  function makeBoard(level){
+    const {R,C,types,murk,shape}=level;
+    const mask=shapeMask(R,C,shape||'rect');
+    const g={R,C,types,cells:[]};
+    for(let r=0;r<R;r++){const row=[];
+      for(let c=0;c<C;c++){
+        if(!mask[r][c]){row.push(voidCell());continue;}
+        let t;let guard=0;
+        do{ t=randType(types); guard++; }
+        while(guard<50 && (
+          (c>=2 && mask[r][c-1]&&mask[r][c-2] && row[c-1].t===t && row[c-2].t===t) ||
+          (r>=2 && mask[r-1][c]&&mask[r-2][c] && g.cells[r-1][c].t===t && g.cells[r-2][c].t===t)));
+        row.push(newCell(t,murk));
+      }g.cells.push(row);}
+    if(!hasMove(g))shuffle(g);
+    return g;
+  }
+
+  // ---- match detection (joker-aware, triple-union) ----
+  function tripleColor(a,b,c){
+    if(!isMatchable(a)||!isMatchable(b)||!isMatchable(c))return null;
+    let color=null;
+    for(const x of [a,b,c]){ if(!x.j && x.t!=null){ if(color===null)color=x.t; else if(color!==x.t)return null; } }
+    return color; // null only if all jokers
+  }
+  function findMatches(g){
+    const H=[],V=[],HC=[],VC=[];
+    for(let r=0;r<g.R;r++){H.push(new Array(g.C).fill(false));HC.push(new Array(g.C).fill(null));
+      V.push(new Array(g.C).fill(false));VC.push(new Array(g.C).fill(null));}
+    for(let r=0;r<g.R;r++)for(let c=0;c+2<g.C;c++){
+      const col=tripleColor(cl(g,r,c),cl(g,r,c+1),cl(g,r,c+2));
+      if(col!==null){for(let k=0;k<3;k++){H[r][c+k]=true;HC[r][c+k]=col;}}}
+    for(let c=0;c<g.C;c++)for(let r=0;r+2<g.R;r++){
+      const col=tripleColor(cl(g,r,c),cl(g,r+1,c),cl(g,r+2,c));
+      if(col!==null){for(let k=0;k<3;k++){V[r+k][c]=true;VC[r+k][c]=col;}}}
+    const matched=new Set();
+    for(let r=0;r<g.R;r++)for(let c=0;c<g.C;c++)if(H[r][c]||V[r][c])matched.add(key(r,c));
+    if(!matched.size)return null;
+    // build runs (split on color change)
+    const hRuns=[],vRuns=[];
+    for(let r=0;r<g.R;r++){let c=0;while(c<g.C){if(!H[r][c]){c++;continue;}
+      let c2=c;const col=HC[r][c];const cells=[];while(c2<g.C&&H[r][c2]&&HC[r][c2]===col){cells.push([r,c2]);c2++;}
+      if(cells.length>=3)hRuns.push({dir:'h',t:col,cells});c=Math.max(c2,c+1);}}
+    for(let c=0;c<g.C;c++){let r=0;while(r<g.R){if(!V[r][c]){r++;continue;}
+      let r2=r;const col=VC[r][c];const cells=[];while(r2<g.R&&V[r2][c]&&VC[r2][c]===col){cells.push([r2,c]);r2++;}
+      if(cells.length>=3)vRuns.push({dir:'v',t:col,cells});r=Math.max(r2,r+1);}}
+    const inter=new Set();for(let r=0;r<g.R;r++)for(let c=0;c<g.C;c++)if(H[r][c]&&V[r][c])inter.add(key(r,c));
+    return {matched,hRuns,vRuns,inter};
+  }
+  const hasMatch=g=>!!findMatches(g);
+
+  function swapCells(g,r1,c1,r2,c2){const t=g.cells[r1][c1];g.cells[r1][c1]=g.cells[r2][c2];g.cells[r2][c2]=t;}
+  function canSwap(g,r1,c1,r2,c2){return inb(g,r1,c1)&&inb(g,r2,c2)&&!cl(g,r1,c1).void&&!cl(g,r2,c2).void;}
+  function hasMove(g){for(let r=0;r<g.R;r++)for(let c=0;c<g.C;c++)for(const[dr,dc]of[[0,1],[1,0]]){
+    const r2=r+dr,c2=c+dc;if(!canSwap(g,r,c,r2,c2))continue;swapCells(g,r,c,r2,c2);
+    const m=hasMatch(g)||cl(g,r,c).sp===RAINBOW||cl(g,r2,c2).sp===RAINBOW;swapCells(g,r,c,r2,c2);if(m)return true;}return false;}
+  function findMove(g){for(let r=0;r<g.R;r++)for(let c=0;c<g.C;c++)for(const[dr,dc]of[[0,1],[1,0]]){
+    const r2=r+dr,c2=c+dc;if(!canSwap(g,r,c,r2,c2))continue;swapCells(g,r,c,r2,c2);
+    const m=hasMatch(g)||cl(g,r,c).sp===RAINBOW||cl(g,r2,c2).sp===RAINBOW;swapCells(g,r,c,r2,c2);if(m)return[[r,c],[r2,c2]];}return null;}
+  function shuffle(g){let guard=0;do{const flat=[];const slots=[];
+    for(let r=0;r<g.R;r++)for(let c=0;c<g.C;c++){if(cl(g,r,c).void)continue;slots.push([r,c]);flat.push(cl(g,r,c).j?'J':cl(g,r,c).t);}
+    for(let i=flat.length-1;i>0;i--){const j=Math.floor(rand()*(i+1));[flat[i],flat[j]]=[flat[j],flat[i]];}
+    slots.forEach(([r,c],i)=>{const x=cl(g,r,c);x.sp=null;if(flat[i]==='J'){x.j=true;x.t=null;}else{x.j=false;x.t=flat[i];}});
+    guard++;}while((hasMatch(g)||!hasMove(g))&&guard<80);}
+
+  function planClears(g,swapped){const fm=findMatches(g);if(!fm)return null;
+    const {matched,hRuns,vRuns,inter}=fm;const spawns=new Map(),used=new Set();
+    const swSet=new Set((swapped||[]).map(([r,c])=>key(r,c)));
+    const pick=run=>{for(const[r,c]of run.cells)if(swSet.has(key(r,c)))return[r,c];return run.cells[Math.floor(run.cells.length/2)];};
+    for(const k of inter){if(!used.has(k)){spawns.set(k,BUBBLE);used.add(k);}}
+    for(const run of [...hRuns,...vRuns])if(run.cells.length>=5){const[r,c]=pick(run);const k=key(r,c);if(!used.has(k)){spawns.set(k,RAINBOW);used.add(k);}}
+    for(const run of [...hRuns,...vRuns])if(run.cells.length===4){const[r,c]=pick(run);const k=key(r,c);if(!used.has(k)){spawns.set(k,RIPPLE);used.add(k);}}
+    return{matched,spawns};}
+
+  function matchesType(x,tt){if(x.void)return false;if(x.j)return true;if(x.sp===RAINBOW)return false;return x.t===tt;}
+  function triggerSpecials(g,clears,seedType){const q=[];
+    for(const k of clears){const[r,c]=k.split(',').map(Number);const x=cl(g,r,c);if(x.sp)q.push([r,c,x.sp,x.t]);}
+    const done=new Set();let guard=0;
+    while(q.length&&guard<8000){guard++;const[r,c,sp,t]=q.shift();if(done.has(key(r,c)))continue;done.add(key(r,c));
+      let add=[];
+      if(sp===RIPPLE){for(let x=0;x<g.C;x++)if(!cl(g,r,x).void)add.push([r,x]);for(let y=0;y<g.R;y++)if(!cl(g,y,c).void)add.push([y,c]);}
+      else if(sp===BUBBLE){for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++)if(inb(g,r+dr,c+dc)&&!cl(g,r+dr,c+dc).void)add.push([r+dr,c+dc]);}
+      else if(sp===RAINBOW){let tt=(seedType!=null?seedType:t);if(tt==null)tt=randType(g.types);for(let y=0;y<g.R;y++)for(let x=0;x<g.C;x++)if(matchesType(cl(g,y,x),tt))add.push([y,x]);}
+      for(const[ar,ac]of add){const kk=key(ar,ac);if(!clears.has(kk)){clears.add(kk);const o=cl(g,ar,ac);if(o.sp&&!done.has(kk))q.push([ar,ac,o.sp,o.t]);}}}}
+
+  function applyClears(g,clears,spawns){let cleared=0,murkCleared=0;
+    for(const k of clears){const[r,c]=k.split(',').map(Number);const x=cl(g,r,c);if(x.void)continue;
+      if(x.murk>0){x.murk--;murkCleared++;}if(spawns&&spawns.has(k))continue;x.t=null;x.sp=null;x.j=false;cleared++;}
+    if(spawns)for(const[k,sp]of spawns){const[r,c]=k.split(',').map(Number);const x=cl(g,r,c);x.sp=sp;x.j=false;if(sp===RAINBOW)x.t=null;}
+    return{cleared,murkCleared};}
+
+  function collapse(g){for(let c=0;c<g.C;c++){
+    let top=-1,bot=-1;for(let r=0;r<g.R;r++)if(!cl(g,r,c).void){if(top<0)top=r;bot=r;}
+    if(top<0)continue;
+    const pieces=[];for(let r=bot;r>=top;r--){const x=cl(g,r,c);if(hasPiece(x))pieces.push(x);}
+    let i=0;for(let r=bot;r>=top;r--){if(i<pieces.length){g.cells[r][c]=pieces[i++];g.cells[r][c]._new=false;}else{g.cells[r][c]=spawnRandom(g.types);}}}}
+
+  function resolveStep(g,swapped){const plan=planClears(g,swapped);if(!plan)return null;
+    const clears=new Set(plan.matched);triggerSpecials(g,clears,null);
+    const res=applyClears(g,clears,plan.spawns);collapse(g);
+    return{cleared:res.cleared,murkCleared:res.murkCleared,spawnedSpecials:[...plan.spawns.values()]};}
+
+  function activateSwap(g,r1,c1,r2,c2){const a=cl(g,r1,c1),b=cl(g,r2,c2);const sp=[];
+    if(a.sp)sp.push([r1,c1,a.sp,a.t,b]);if(b.sp)sp.push([r2,c2,b.sp,b.t,a]);
+    if(!sp.length)return false;const clears=new Set();for(const[r,c]of sp)clears.add(key(r,c));
+    let seed=null;for(const[r,c,s,t,p]of sp)if(s===RAINBOW&&p){seed=p.j?randType(g.types):(p.sp===RAINBOW?null:p.t);}
+    triggerSpecials(g,clears,seed);const res=applyClears(g,clears,null);collapse(g);return res;}
+
+  const isCleared=g=>{for(let r=0;r<g.R;r++)for(let c=0;c<g.C;c++)if(cl(g,r,c).murk>0)return false;return true;};
+  const murkLeft=g=>{let n=0;for(let r=0;r<g.R;r++)for(let c=0;c<g.C;c++)n+=cl(g,r,c).murk;return n;};
+  return{RIPPLE,BUBBLE,RAINBOW,makeBoard,shapeMask,findMatches,hasMatch,hasMove,findMove,swapCells,canSwap,shuffle,resolveStep,activateSwap,isCleared,murkLeft,cell:cl,inb};
+}
+
+/* ============================================================
+   UI LAYER
+   ============================================================ */
+const E = makeEngine();
+let g, level=0, moves=0, sel=null, busy=false, tileSize=46, par3=1, par2=1;
+const boardEl=document.getElementById('board');
+
+/* ---------- saved progress ----------
+   Persists once deployed to a real site; safely no-ops in the preview here.
+   IMPORTANT: never rename SAVE_KEY after release, or saved progress is lost. */
+const SAVE_KEY='pookiePopperPond_v1';
+let save={highest:0,last:0,turtles:{},soundOn:true};
+function loadSave(){ try{ const raw=localStorage.getItem(SAVE_KEY); if(raw){ const d=JSON.parse(raw);
+  save={highest:d.highest|0, last:d.last|0, turtles:d.turtles||{}, soundOn:d.soundOn!==false}; } }catch(e){} }
+function writeSave(){ try{ localStorage.setItem(SAVE_KEY,JSON.stringify(save)); }catch(e){} }
+loadSave();
+
+/* ---------- sound (Web Audio, no files) ---------- */
+let soundOn=save.soundOn, actx=null;
+function ensureAudio(){ try{ if(!actx) actx=new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==='suspended') actx.resume(); }catch(e){} }
+function playPop(cascade){
+  if(!soundOn||!actx) return;
+  try{
+    const t=actx.currentTime, o=actx.createOscillator(), gain=actx.createGain();
+    o.type='sine';
+    const base=300+Math.min(cascade,6)*70;
+    o.frequency.setValueAtTime(base*1.7,t);
+    o.frequency.exponentialRampToValueAtTime(base*0.6,t+0.12);
+    gain.gain.setValueAtTime(0.0001,t);
+    gain.gain.exponentialRampToValueAtTime(0.22,t+0.012);
+    gain.gain.exponentialRampToValueAtTime(0.0001,t+0.15);
+    o.connect(gain).connect(actx.destination); o.start(t); o.stop(t+0.17);
+  }catch(e){}
+}
+function playChime(){
+  if(!soundOn||!actx) return;
+  try{ [523,659,784,1047].forEach((f,i)=>{ const t=actx.currentTime+i*0.09, o=actx.createOscillator(), gain=actx.createGain();
+    o.type='triangle'; o.frequency.value=f;
+    gain.gain.setValueAtTime(0.0001,t); gain.gain.exponentialRampToValueAtTime(0.18,t+0.02); gain.gain.exponentialRampToValueAtTime(0.0001,t+0.3);
+    o.connect(gain).connect(actx.destination); o.start(t); o.stop(t+0.32); }); }catch(e){}
+}
+
+function sizeBoard(){
+  const cols=g.C;
+  const maxW=Math.min(window.innerWidth-24, 460);
+  tileSize=Math.floor((maxW-16-(cols-1)*4)/cols);
+  tileSize=Math.max(32,Math.min(tileSize,60));
+  boardEl.style.gridTemplateColumns=`repeat(${cols},${tileSize}px)`;
+}
+function sig(x){return x.void?'V':((x.j?'J':(x.sp||x.t))+'|'+x.murk);}
+let prevSig=null;
+
+function render(animate){
+  boardEl.innerHTML='';
+  const newSig=[];
+  for(let r=0;r<g.R;r++){const rowSig=[];
+    for(let c=0;c<g.C;c++){
+      const x=g.cells[r][c];
+      const tile=document.createElement('button');
+      tile.style.width=tileSize+'px';tile.style.height=tileSize+'px';
+      tile.dataset.r=r;tile.dataset.c=c;
+      if(x.void){ tile.className='tile void'; rowSig.push('V'); boardEl.appendChild(tile); continue; }
+      tile.className='tile';
+      const crit=document.createElement('div');crit.className='crit';
+      crit.style.fontSize=Math.floor(tileSize*0.5)+'px';
+      if(x.sp){crit.classList.add(x.sp);crit.textContent=SPECIAL_EMOJI[x.sp];}
+      else if(x.j){crit.classList.add('joker');crit.textContent=OBI_EMOJI;}
+      else if(x.t!=null){crit.style.background=PIECES[x.t].bg;crit.textContent=PIECES[x.t].e;}
+      tile.appendChild(crit);
+      if(x.murk>0){const w=document.createElement('div');w.className='weed m'+x.murk;w.textContent=x.murk>=2?'🌿':'';tile.appendChild(w);}
+      if(sel&&sel[0]===r&&sel[1]===c)tile.classList.add('sel');
+      const s=sig(x);rowSig.push(s);
+      if(animate&&prevSig&&prevSig[r]&&prevSig[r][c]!==s)tile.classList.add('pop');
+      tile.addEventListener('click',()=>onTap(r,c));
+      boardEl.appendChild(tile);
+    }newSig.push(rowSig);}
+  prevSig=newSig;
+  document.getElementById('weedLeft').textContent=E.murkLeft(g);
+  document.getElementById('moves').textContent=moves+(moves===1?' move':' moves');
+  document.getElementById('levelPill').textContent='Pond '+(level+1)+' / '+TOTAL_LEVELS;
+}
+
+const delay=ms=>new Promise(r=>setTimeout(r,ms));
+const reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+async function onTap(r,c){
+  ensureAudio();
+  if(busy)return;
+  if(g.cells[r][c].void)return;
+  if(!sel){ sel=[r,c]; render(false); return; }
+  if(sel[0]===r&&sel[1]===c){ sel=null; render(false); return; }
+  const adj=Math.abs(sel[0]-r)+Math.abs(sel[1]-c)===1;
+  if(!adj){ sel=[r,c]; render(false); return; }
+  const [sr,sc]=sel; sel=null;
+  await trySwap(sr,sc,r,c);
+}
+
+async function trySwap(r1,c1,r2,c2){
+  busy=true;
+  E.swapCells(g,r1,c1,r2,c2);
+  const acted=E.activateSwap(g,r1,c1,r2,c2);
+  let any=false, casc=0;
+  if(acted){ any=true; playPop(0); render(true); await delay(reduce?10:260); }
+  else{
+    const first=E.resolveStep(g,[[r1,c1],[r2,c2]]);
+    if(first){ any=true; playPop(0); render(true); await delay(reduce?10:260); }
+    else{
+      E.swapCells(g,r1,c1,r2,c2); render(false);
+      const t=[...boardEl.children].find(el=>+el.dataset.r===r2&&+el.dataset.c===c2);
+      if(t){t.classList.add('shake');setTimeout(()=>t.classList.remove('shake'),300);}
+      busy=false; return;
+    }
+  }
+  let guard=0;
+  while(guard<300){ const s=E.resolveStep(g,null); if(!s)break; casc++; playPop(casc); render(true); await delay(reduce?10:230); guard++; }
+  if(any) moves++;
+  render(false);
+  if(E.isCleared(g)){ await delay(240); return winLevel(); }
+  if(!E.hasMove(g)){ E.shuffle(g); render(true); }
+  busy=false;
+}
+
+function rain(){const set=['💗','🐸','🌿','🪷','🦆','🦢','🐱','✨'];
+  for(let i=0;i<16;i++){const f=document.createElement('div');f.className='float';
+    f.textContent=set[Math.floor(Math.random()*set.length)];
+    f.style.left=(Math.random()*100)+'vw';f.style.animationDelay=(Math.random()*0.8)+'s';
+    f.style.fontSize=(1.2+Math.random()*1.5)+'rem';document.body.appendChild(f);setTimeout(()=>f.remove(),3000);}}
+
+function winLevel(){
+  busy=true; rain(); playChime();
+  const earned = moves<=par3?3 : moves<=par2?2 : 1;
+  const prevBest = save.turtles[level]||0;
+  const best = Math.max(prevBest, earned);
+  save.turtles[level]=best;
+  if(level+1>save.highest) save.highest=Math.min(level+1,TOTAL_LEVELS-1);
+  writeSave();
+  const tr=document.getElementById('turtleRow'); tr.innerHTML='';
+  for(let i=0;i<3;i++){const s=document.createElement('span');s.className='t'+(i<earned?' on':'');s.textContent='🐢';s.style.animationDelay=(i*0.12)+'s';tr.appendChild(s);}
+  let mc='Cleared in '+moves+(moves===1?' move':' moves');
+  if(earned>prevBest && prevBest>0) mc+=' · new best!';
+  else if(best>earned) mc+=' · best 🐢×'+best;
+  document.getElementById('moveCount').textContent=mc;
+  const last=level>=TOTAL_LEVELS-1;
+  document.getElementById('winTitle').textContent=last?'Every pond cleared! 🎉':'Pond cleared! 🌿';
+  document.getElementById('winMsg').textContent=last?CONFIG.finale:CONFIG.winMessages[level%CONFIG.winMessages.length];
+  const b=document.getElementById('winBtn');b.textContent=last?'Play again':'Next pond →';
+  b.onclick=()=>{document.getElementById('win').classList.remove('show');
+    if(last){startLevel(0);}else startLevel(level+1);};
+  document.getElementById('win').classList.add('show');
+}
+
+function startLevel(idx){
+  level=idx; g=E.makeBoard(levelConfig(idx)); moves=0; sel=null; busy=false; prevSig=null;
+  const total=E.murkLeft(g);
+  par3=Math.max(3,Math.ceil(total*0.5)); par2=Math.max(5,Math.ceil(total*0.85));
+  save.last=idx; if(idx>save.highest) save.highest=idx; writeSave();
+  sizeBoard(); render(false);
+}
+
+document.getElementById('restartBtn').onclick=()=>{ if(!busy)startLevel(level); };
+document.getElementById('soundBtn').onclick=()=>{ soundOn=!soundOn; ensureAudio();
+  save.soundOn=soundOn; writeSave();
+  document.getElementById('soundBtn').textContent=soundOn?'🔊 Sound':'🔇 Muted'; };
+document.getElementById('hintBtn').onclick=()=>{
+  if(busy)return; const mv=E.findMove(g); if(!mv)return; sel=null; render(false);
+  for(const [r,c] of mv){ const t=[...boardEl.children].find(el=>+el.dataset.r===r&&+el.dataset.c===c);
+    if(t){t.classList.add('pop'); setTimeout(()=>t.classList.remove('pop'),420);} }
+};
+
+/* ---------- pond picker ---------- */
+const pickerEl=document.getElementById('picker');
+const pickerGrid=document.getElementById('pickerGrid');
+function buildPicker(){
+  pickerGrid.innerHTML='';
+  for(let i=0;i<TOTAL_LEVELS;i++){
+    const unlocked=i<=save.highest, t=save.turtles[i]||0;
+    const cell=document.createElement('button');
+    cell.className='pcell'+(unlocked?'':' locked')+(t>0?' done':'')+(i===level?' current':'');
+    if(unlocked){
+      let dots='';for(let k=0;k<3;k++)dots+='<i'+(k<t?' class="on"':'')+'>🐢</i>';
+      cell.innerHTML='<span class="pn">'+(i+1)+'</span><span class="pt">'+dots+'</span>';
+      cell.onclick=()=>{ closePicker(); beginAt(i); };
+    }else{
+      cell.innerHTML='<span class="lock">🔒</span>';
+    }
+    pickerGrid.appendChild(cell);
+  }
+  const cleared=Object.keys(save.turtles).length;
+  let tot=0; for(const k in save.turtles) tot+=save.turtles[k];
+  document.getElementById('pickerStats').textContent=cleared+' / '+TOTAL_LEVELS+' ponds cleared · 🐢 '+tot+' / '+(TOTAL_LEVELS*3);
+}
+function openPicker(){ ensureAudio(); buildPicker(); pickerEl.classList.add('show');
+  const cur=pickerGrid.querySelector('.current'); if(cur) cur.scrollIntoView({block:'center'}); }
+function closePicker(){ pickerEl.classList.remove('show'); }
+document.getElementById('pondsBtn').onclick=openPicker;
+document.getElementById('pickerClose').onclick=closePicker;
+
+function beginAt(idx){ ensureAudio(); document.getElementById('welcome').classList.remove('show'); startLevel(idx); }
+const startBtn=document.getElementById('startBtn');
+const hasProgress = save.last>0 || save.highest>0 || Object.keys(save.turtles).length>0;
+if(hasProgress){
+  startBtn.textContent='Continue · Pond '+(save.last+1);
+  startBtn.onclick=()=>beginAt(save.last);
+  const row=document.createElement('div');
+  row.style.cssText='display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap;';
+  const map=document.createElement('button');
+  map.className='btn'; map.textContent='🗺️ Pond map'; map.onclick=openPicker;
+  const over=document.createElement('button');
+  over.className='btn'; over.textContent='Start over';
+  over.onclick=()=>{ save={highest:0,last:0,turtles:{},soundOn:soundOn}; writeSave(); beginAt(0); };
+  row.appendChild(map); row.appendChild(over);
+  startBtn.parentNode.appendChild(row);
+}else{
+  startBtn.onclick=()=>beginAt(0);
+}
+document.getElementById('soundBtn').textContent=soundOn?'🔊 Sound':'🔇 Muted';
+window.addEventListener('resize',()=>{ if(g){sizeBoard();render(false);} });
+
+document.getElementById('wTitle').textContent='Hi, '+CONFIG.name+'!';
+document.getElementById('wMsg').textContent=CONFIG.welcome;
+startLevel(save.last||0);
+</script>
+</body>
+</html>
